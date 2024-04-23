@@ -1,0 +1,41 @@
+version: '3.8'
+name: datamotors
+
+services:
+  db-carros:
+    container_name: db-carros
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=carrosAPI
+    volumes:
+      - $VOLUME/postgres/store/data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - carros
+
+  carros:
+    build:
+      context: ../datamotors.api/
+      dockerfile: Dockerfile
+    image: datamotors-carros:latest
+    ports:
+      - 8080:8080
+    environment:
+      # aqui estamos passando as variáveis de ambiente para o container acesso o banco dentro da rede do docker
+      # note que o "db" abaixo eh o nome do servico do banco de dados acima
+      - spring.datasource.url=jdbc:postgresql://db-carros:5432/carrosAPI
+      - spring.datasource.username=postgres
+      - spring.datasource.password=postgres
+    networks:
+      - carros
+    restart: always
+    depends_on:
+      - db-carros
+
+networks:
+  carros:
+    driver: bridge
