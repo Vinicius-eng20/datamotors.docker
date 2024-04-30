@@ -32,7 +32,6 @@ services:
       - spring.datasource.password=postgres
     networks:
       - carros
-    restart: always
     depends_on:
       - db-carros
 
